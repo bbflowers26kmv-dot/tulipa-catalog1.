@@ -133,13 +133,13 @@
     display:flex;
     align-items:flex-end;
     justify-content:center;
-    flex-wrap:wrap;
-    gap:2px;
+    flex-wrap:nowrap;
+    gap:6px;
     height:200px;
-    max-width:420px;
+    max-width:460px;
     margin:0 auto;
   }
-  .hero-field svg{overflow:visible;}
+  .hero-field svg{overflow:visible; filter:saturate(1.6) brightness(1.08);}
 
   /* ---------- Catalog ---------- */
   .catalog{
@@ -764,7 +764,7 @@ renderProductsInBatches(hyacinthProducts, 8, hyacinthGrid, ()=>{
 
 /* ---------- поле тюльпанов в хиро ---------- */
 const heroField = document.getElementById('heroField');
-const HERO_TULIP_COUNT = 9;
+const HERO_TULIP_COUNT = 5;
 const step = Math.max(1, Math.floor(tulipProducts.length / HERO_TULIP_COUNT));
 const heroPicks = [];
 for (let i = 0; i < tulipProducts.length && heroPicks.length < HERO_TULIP_COUNT; i += step){
