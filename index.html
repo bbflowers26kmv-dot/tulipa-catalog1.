@@ -494,7 +494,7 @@
 
 <section class="hero">
   <div>
-    <h1>Тюльпаны собственного производства</h1>
+    <h1>Луковицы тюльпанов, гиацинтов, нарциссов собственного производства.</h1>
 
     <a href="#catalog" class="cta">Смотреть каталог →</a>
   </div>
@@ -503,10 +503,24 @@
 
 <section class="catalog" id="catalog">
   <div class="catalog-head">
-    <h2>Каталог</h2>
+    <h2>Тюльпаны</h2>
     <div class="note">56 сортов · в наличии сегодня</div>
   </div>
   <div class="grid" id="productGrid"></div>
+</section>
+
+<section class="catalog">
+  <div class="catalog-head">
+    <h2>Нарциссы</h2>
+  </div>
+  <div class="grid" id="daffodilGrid"></div>
+</section>
+
+<section class="catalog">
+  <div class="catalog-head">
+    <h2>Гиацинты</h2>
+  </div>
+  <div class="grid" id="hyacinthGrid"></div>
 </section>
 
 <footer id="delivery">
@@ -602,6 +616,8 @@ const products = [
   { id:54, lot:'54', name:'ХВДМ', color:'#7A4FA0', img:'images/photo-54.webp', desc:'', price:35 },
   { id:55, lot:'55', name:'Холланд Бьюти', color:'#E8A16B', img:'images/photo-55.webp', desc:'', price:35 },
   { id:56, lot:'56', name:'ЯнВанБус', color:'#E0672E', img:'images/photo-56.webp', desc:'', price:35 },
+  { id:57, lot:'57', name:'Нарциссы', color:'#E3B23C', img:'images/photo-57.webp', desc:'Микс сортов', price:20, category:'daffodil' },
+  { id:58, lot:'58', name:'Гиацинты', color:'#7A4FA0', img:'images/photo-58.webp', desc:'Микс: белый, оранжевый, сиреневый', price:45, category:'hyacinth' },
 ];
 const UNIT = 'Детка - 1 стакан 400 руб.';
 const DETKA_PRICE = 400;
@@ -643,15 +659,16 @@ function buildCard(p){
         <span class="price">${p.price} ₽</span>
         <div class="controls" data-key="f:${p.id}"></div>
       </div>
+      ${(!p.category || p.category==='tulip') ? `
       <div class="detka-row">
         <span class="detka-label">Детка · 1 стакан — ${DETKA_PRICE} ₽</span>
         <div class="controls" data-key="d:${p.id}"></div>
-      </div>
+      </div>` : ''}
     </div>`;
   return card;
 }
 
-function renderProductsInBatches(list, batchSize, onBatch){
+function renderProductsInBatches(list, batchSize, targetGrid, onBatch){
   let i = 0;
   function next(){
     const frag = document.createDocumentFragment();
@@ -659,7 +676,7 @@ function renderProductsInBatches(list, batchSize, onBatch){
     for (; i < end; i++){
       frag.appendChild(buildCard(list[i]));
     }
-    grid.appendChild(frag);
+    targetGrid.appendChild(frag);
     if (onBatch) onBatch();
     if (i < list.length){
       (window.requestIdleCallback || window.requestAnimationFrame)(next);
@@ -714,7 +731,24 @@ function observeNewImages(){
   firstBatchDone = true;
 }
 
-renderProductsInBatches(products, 8, ()=>{
+const tulipProducts = products.filter(p=>!p.category || p.category==='tulip');
+const daffodilProducts = products.filter(p=>p.category==='daffodil');
+const hyacinthProducts = products.filter(p=>p.category==='hyacinth');
+
+const daffodilGrid = document.getElementById('daffodilGrid');
+const hyacinthGrid = document.getElementById('hyacinthGrid');
+
+renderProductsInBatches(tulipProducts, 8, grid, ()=>{
+  renderCardControls();
+  renderBadge();
+  observeNewImages();
+});
+renderProductsInBatches(daffodilProducts, 8, daffodilGrid, ()=>{
+  renderCardControls();
+  renderBadge();
+  observeNewImages();
+});
+renderProductsInBatches(hyacinthProducts, 8, hyacinthGrid, ()=>{
   renderCardControls();
   renderBadge();
   observeNewImages();
