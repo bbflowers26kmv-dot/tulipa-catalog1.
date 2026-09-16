@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TULIPA — тюльпаны партиями и поштучно</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;600&display=swap"></noscript>
+<style>
+  :root{
+    --paper:#EEF0E4;
+    --card:#F8F9F1;
+    --ink:#1F2419;
+    --ink-soft:#4B5142;
+    --line:#C9CDB8;
+    --tulip-red:#C31432;
+    --leaf:#45613B;
+    --gold:#8C6A1E;
+    --soft:#C98A93;
+    --soft-dark:#B06E78;
+    --paper-rgb: 238,240,228;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0;
+    line-height:1.08;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--tulip-red); outline-offset:2px;}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky; top:0; z-index:30;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 5vw;
+    background:rgba(var(--paper-rgb),0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.35rem;
+    letter-spacing:0.04em;
+  }
+  .logo span{color:var(--tulip-red);}
+  nav{display:flex; gap:28px;}
+  nav a{
+    text-decoration:none;
+    font-size:0.92rem;
+    color:var(--ink-soft);
+    border-bottom:1px solid transparent;
+    padding-bottom:2px;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  nav a:hover{color:var(--ink); border-color:var(--tulip-red);}
+  .cart-btn{
+    position:relative;
+    display:flex; align-items:center; gap:8px;
+    background:var(--soft);
+    color:#fff;
+    border:none;
+    padding:10px 16px;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  .cart-btn:hover{background:var(--soft-dark);}
+  .badge{
+    position:absolute; top:-8px; right:-8px;
+    background:var(--soft-dark);
+    color:#fff;
+    font-size:0.7rem;
+    min-width:18px; height:18px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    padding:0 3px;
+  }
+  .badge.hidden{display:none;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    align-items:center;
+    gap:40px;
+    padding:70px 5vw 20px;
+    max-width:1400px;
+    margin:0 auto;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 5vw, 4rem);
+    max-width:11ch;
+  }
+  .hero p.lede{
+    margin-top:18px;
+    max-width:42ch;
+    color:var(--ink-soft);
+    font-size:1.05rem;
+  }
+  .hero .cta{
+    margin-top:30px;
+    display:inline-flex; align-items:center; gap:10px;
+    background:none;
+    border:1px solid var(--ink);
+    padding:12px 22px;
+    cursor:pointer;
+    font-size:0.95rem;
+    text-decoration:none;
+    color:var(--ink);
+    transition:background .15s ease, color .15s ease;
+  }
+  .hero .cta:hover{background:var(--ink); color:var(--paper);}
+  .hero-field{
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    gap:4px;
+    height:260px;
+  }
+  .hero-field svg{overflow:visible;}
+
+  /* ---------- Catalog ---------- */
+  .catalog{
+    max-width:1400px;
+    margin:0 auto;
+    padding:70px 5vw 40px;
+  }
+  .catalog-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+    margin-bottom:36px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .catalog-head h2{font-size:1.8rem;}
+  .catalog-head .note{color:var(--ink-soft); font-size:0.9rem;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:28px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  .card .lot{
+    position:absolute;
+    top:12px; left:12px;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    background:var(--card);
+    padding:2px 7px;
+    border:1px solid var(--line);
+  }
+  .card .art{
+    height:240px;
+    display:flex; align-items:center; justify-content:center;
+    padding-top:10px;
+    overflow:hidden;
+  }
+  .card .art img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .ticket-edge{
+    position:relative;
+    border-top:1px dashed var(--line);
+    margin:0 16px;
+  }
+  .ticket-edge::before,.ticket-edge::after{
+    content:'';
+    position:absolute; top:-7px;
+    width:14px; height:14px;
+    background:var(--paper);
+    border-radius:50%;
+  }
+  .ticket-edge::before{left:-23px;}
+  .ticket-edge::after{right:-23px;}
+  .card .info{
+    padding:16px 16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    flex:1;
+  }
+  .card h3{font-size:1.15rem; font-weight:600;}
+  .card .desc{
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  .card .unit{font-size:0.76rem; color:var(--ink-soft);}
+  .card .price-row{
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .price{
+    font-family:'Fraunces', serif;
+    font-size:1.3rem;
+    color:var(--gold);
+  }
+  .card .detka-row{
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .detka-label{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
+  .add-btn{
+    background:var(--soft);
+    color:#fff;
+    border:none;
+    padding:9px 14px;
+    font-size:0.85rem;
+    cursor:pointer;
+  }
+  .add-btn:hover{background:var(--soft-dark);}
+  .stepper{
+    display:flex; align-items:center; gap:0;
+    border:1px solid var(--ink);
+  }
+  .stepper button{
+    background:none; border:none;
+    width:30px; height:32px;
+    cursor:pointer;
+    font-size:1rem;
+    color:var(--ink);
+  }
+  .stepper button:hover{background:var(--soft); color:#fff;}
+  .stepper span{
+    min-width:26px;
+    text-align:center;
+    font-size:0.9rem;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:44px 5vw 30px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:20px;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+  }
+  footer .fcol h4{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.09em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+    font-size:0.72rem;
+  }
+  footer .fcol p{margin:3px 0;}
+  footer #about h4{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:600;
+    text-transform:none;
+    letter-spacing:0;
+    color:var(--ink);
+    font-size:1.7rem;
+    margin-bottom:10px;
+  }
+  footer #about p{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:0.95rem;
+    color:var(--ink-soft);
+    max-width:26ch;
+    line-height:1.5;
+  }
+
+  /* ---------- Cart drawer ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(20,20,10,0.35);
+    opacity:0; pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:40;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; bottom:0;
+    width:min(400px, 100vw);
+    background:var(--paper);
+    border-left:1px solid var(--line);
+    z-index:50;
+    display:flex; flex-direction:column;
+    transform:translateX(100%);
+    transition:transform .25s ease;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 22px;
+    border-bottom:1px solid var(--line);
+  }
+  .drawer-head h3{font-size:1.2rem;}
+  .drawer-head button{
+    background:none; border:none; cursor:pointer;
+    font-size:1.4rem; line-height:1; color:var(--ink);
+  }
+  .drawer-body{
+    flex:1; overflow-y:auto;
+    padding:14px 22px;
+  }
+  .empty-cart{
+    color:var(--ink-soft);
+    text-align:center;
+    margin-top:60px;
+    font-size:0.92rem;
+  }
+  .line-item{
+    display:flex; gap:12px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .line-item .swatch{
+    width:44px; height:44px;
+    flex:none;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--card);
+    border:1px solid var(--line);
+  }
+  .line-item .li-info{flex:1;}
+  .line-item .li-info .name{font-size:0.92rem; font-weight:600;}
+  .line-item .li-info .unit{font-size:0.75rem; color:var(--ink-soft);}
+  .line-item .li-bottom{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:6px;
+  }
+  .line-item .li-total{font-family:'Fraunces', serif; color:var(--gold);}
+  .remove-link{
+    background:none; border:none; cursor:pointer;
+    font-size:0.75rem; color:var(--ink-soft);
+    text-decoration:underline;
+  }
+  .remove-link:hover{color:var(--tulip-red);}
+
+  .drawer-foot{
+    border-top:1px solid var(--line);
+    padding:18px 22px 24px;
+  }
+  .subtotal-row{
+    display:flex; justify-content:space-between;
+    font-size:1rem;
+    margin-bottom:14px;
+  }
+  .subtotal-row .amount{font-family:'Fraunces', serif; font-size:1.3rem; color:var(--gold);}
+  .buyer-fields{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .buyer-input{
+    width:100%;
+    border:1px solid var(--line);
+    background:var(--card);
+    padding:11px 12px;
+    font-family:'Inter', sans-serif;
+    font-size:0.9rem;
+    color:var(--ink);
+  }
+  .buyer-input::placeholder{color:var(--ink-soft);}
+  .buyer-input:focus{outline:none; border-color:var(--soft);}
+  .buyer-input.invalid{border-color:var(--tulip-red);}
+  .buyer-error{
+    color:var(--tulip-red);
+    font-size:0.78rem;
+    min-height:1.1em;
+  }
+  .checkout-btn{
+    width:100%;
+    background:var(--soft);
+    color:#fff;
+    border:none;
+    padding:14px;
+    font-size:0.95rem;
+    cursor:pointer;
+  }
+  .checkout-btn:hover{background:var(--soft-dark);}
+  .checkout-btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .confirm{
+    text-align:center;
+    padding:40px 10px;
+  }
+  .confirm h3{font-size:1.4rem; margin-bottom:10px;}
+  .confirm p{color:var(--ink-soft); font-size:0.9rem;}
+  .confirm .new-order{
+    margin-top:22px;
+    background:none;
+    border:1px solid var(--ink);
+    padding:10px 18px;
+    cursor:pointer;
+    font-size:0.88rem;
+  }
+
+  @media (max-width:780px){
+    .hero{grid-template-columns:1fr; padding-top:40px;}
+    .hero-field{height:170px; margin-top:20px;}
+    nav{display:none;}
+  }
+
+  @media (max-width:480px){
+    header{padding:14px 4vw;}
+    .logo{font-size:1.15rem;}
+    .cart-btn{padding:9px 12px; gap:6px;}
+    .cart-label{display:none;}
+    .hero{padding:30px 5vw 10px;}
+    .hero p.lede{font-size:0.95rem;}
+    .hero .cta{width:100%; justify-content:center; padding:13px 22px;}
+    .catalog{padding:44px 5vw 30px;}
+    .catalog-head{margin-bottom:24px;}
+    .catalog-head h2{font-size:1.5rem;}
+    .grid{grid-template-columns:1fr; gap:18px;}
+    .card .art{height:220px;}
+    .stepper button{width:38px; height:40px; font-size:1.1rem;}
+    .price-row{flex-wrap:wrap; gap:10px;}
+    footer{flex-direction:column; gap:26px;}
+    .drawer{width:100vw;}
+    .checkout-btn, .add-btn{padding:13px 14px;}
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">TULIPA<span>.</span></div>
+  <nav>
+    <a href="#catalog">Каталог</a>
+    <a href="#about">О нас</a>
+    <a href="#delivery">Оплата</a>
+  </nav>
+  <button class="cart-btn" id="openCart" aria-label="Открыть корзину">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="17" cy="21" r="1"/></svg>
+    <span class="cart-label">Корзина</span>
+    <span class="badge hidden" id="cartBadge">0</span>
+  </button>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Тюльпаны собственного производства</h1>
+
+    <a href="#catalog" class="cta">Смотреть каталог →</a>
+  </div>
+  <div class="hero-field" id="heroField"></div>
+</section>
+
+<section class="catalog" id="catalog">
+  <div class="catalog-head">
+    <h2>Каталог</h2>
+    <div class="note">56 сортов · в наличии сегодня</div>
+  </div>
+  <div class="grid" id="productGrid"></div>
+</section>
+
+<footer id="delivery">
+  <div class="fcol" id="about">
+    <h4>TULIPA</h4>
+    <p>Своё дело знаем: луковицы от производителя, честные цены, быстрая отгрузка.</p>
+  </div>
+  <div class="fcol">
+    <h4>Оплата</h4>
+    <p>Наличными при получении</p>
+    <p>Перевод по номеру телефона</p>
+  </div>
+  <div class="fcol">
+    <h4>Контакты</h4>
+    <p>+7 (928) 361-27-95</p>
+    <p>bbflowers.26kmv@gmail.com</p>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Корзина">
+  <div class="drawer-head">
+    <h3>Ваша корзина</h3>
+    <button id="closeCart" aria-label="Закрыть">&times;</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</aside>
+
+<script>
+/* ======================================================
+   ДАННЫЕ КАТАЛОГА
+   Чтобы изменить сорт, цену или описание — редактируйте
+   значения ниже. Цена — в рублях за пучок из 9 стеблей.
+====================================================== */
+// Поле "img" необязательное: укажите путь/ссылку на фото ('photos/queen.jpg'
+// или 'https://...'), и оно заменит собой SVG-иллюстрацию для этой карточки.
+// Если "img" не задан — останется векторный рисунок.
+const products = [
+  { id:1, lot:'01', name:'Авокадо', color:'#3B1F2B', img:'images/photo-1.webp', desc:'', price:35 },
+  { id:2, lot:'02', name:'Акебено', color:'#C31432', img:'images/photo-2.webp', desc:'', price:35 },
+  { id:3, lot:'03', name:'Алиби', color:'#E8899E', img:'images/photo-3.webp', desc:'', price:35 },
+  { id:4, lot:'04', name:'Апдейт', color:'#E3B23C', img:'images/photo-4.webp', desc:'', price:35 },
+  { id:5, lot:'05', name:'Апельдорн Элите', color:'#F5F3EA', img:'images/photo-5.webp', desc:'', price:32 },
+  { id:6, lot:'06', name:'Аргос', color:'#7A4FA0', img:'images/photo-6.webp', desc:'', price:35 },
+  { id:7, lot:'07', name:'ДаблФлег', color:'#E8A16B', img:'images/photo-7.webp', desc:'', price:40 },
+  { id:8, lot:'08', name:'Банья Лука', color:'#E0672E', img:'images/photo-8.webp', desc:'', price:35 },
+  { id:9, lot:'09', name:'Барселона', color:'#E8D46A', img:'images/photo-9.webp', desc:'', price:35 },
+  { id:10, lot:'10', name:'Болроял Пинк', color:'#CB4B2E', img:'images/photo-10.webp', desc:'', price:35 },
+  { id:11, lot:'11', name:'Буллит', color:'#B23A5C', img:'images/photo-11.webp', desc:'', price:35 },
+  { id:12, lot:'12', name:'ВестПойнт', color:'#D97757', img:'images/photo-12.webp', desc:'', price:35 },
+  { id:13, lot:'13', name:'ДаблФлег', color:'#9C4F96', img:'images/photo-13.webp', desc:'', price:40 },
+  { id:14, lot:'14', name:'Каданс', color:'#4E7A51', img:'images/photo-14.webp', desc:'', price:35 },
+  { id:15, lot:'15', name:'Кадима', color:'#D6B23A', img:'images/photo-15.webp', desc:'', price:35 },
+  { id:16, lot:'16', name:'Канберра', color:'#8B3A62', img:'images/photo-16.webp', desc:'', price:35 },
+  { id:17, lot:'17', name:'Квинсдей', color:'#C97B3D', img:'images/photo-17.webp', desc:'', price:40 },
+  { id:18, lot:'18', name:'Кённинген', color:'#5C6E8C', img:'images/photo-18.webp', desc:'', price:32 },
+  { id:19, lot:'19', name:'Лалибелла', color:'#A83232', img:'images/photo-19.webp', desc:'', price:35 },
+  { id:20, lot:'20', name:'ЛеннинсМемориал', color:'#D98BAE', img:'', desc:'', price:32 },
+  { id:21, lot:'21', name:'ЛехВалеса', color:'#6B8E5A', img:'images/photo-21.webp', desc:'', price:35 },
+  { id:22, lot:'22', name:'Лорна', color:'#B8860B', img:'images/photo-22.webp', desc:'', price:35 },
+  { id:23, lot:'23', name:'Лэптоп', color:'#8E4A6B', img:'images/photo-23.webp', desc:'', price:35 },
+  { id:24, lot:'24', name:'Люба', color:'#D95F5F', img:'images/photo-24.webp', desc:'', price:35 },
+  { id:25, lot:'25', name:'Маракс Прайд', color:'#3B1F2B', img:'images/photo-25.webp', desc:'', price:35 },
+  { id:26, lot:'26', name:'Матч', color:'#C31432', img:'images/photo-26.webp', desc:'', price:35 },
+  { id:27, lot:'27', name:'Мистериус Паррот', color:'#E8899E', img:'images/photo-27.webp', desc:'', price:40 },
+  { id:28, lot:'28', name:'Непер', color:'#E3B23C', img:'images/photo-28.webp', desc:'', price:35 },
+  { id:29, lot:'29', name:'Ниненрод', color:'#F5F3EA', img:'images/photo-29.webp', desc:'', price:40 },
+  { id:30, lot:'30', name:'Парад', color:'#7A4FA0', img:'images/photo-30.webp', desc:'', price:32 },
+  { id:31, lot:'31', name:'Парадеро', color:'#E8A16B', img:'images/photo-31.webp', desc:'', price:35 },
+  { id:32, lot:'32', name:'ПёрплЛорд', color:'#E0672E', img:'images/photo-32.webp', desc:'', price:35 },
+  { id:33, lot:'33', name:'ПерплСкай', color:'#E8D46A', img:'images/photo-33.webp', desc:'', price:40 },
+  { id:34, lot:'34', name:'ПинкАрдур', color:'#CB4B2E', img:'images/photo-34.webp', desc:'', price:35 },
+  { id:35, lot:'35', name:'Посейдон', color:'#B23A5C', img:'images/photo-35.webp', desc:'', price:35 },
+  { id:36, lot:'36', name:'РоузиВингс', color:'#D97757', img:'images/photo-36.webp', desc:'', price:35 },
+  { id:37, lot:'37', name:'Роял Тен', color:'#9C4F96', img:'images/photo-37.webp', desc:'', price:35 },
+  { id:38, lot:'38', name:'Санбелт', color:'#4E7A51', img:'images/photo-38.webp', desc:'', price:35 },
+  { id:39, lot:'39', name:'Сандор', color:'#D6B23A', img:'images/photo-39.webp', desc:'', price:35 },
+  { id:40, lot:'40', name:'Сиси', color:'#8B3A62', img:'images/photo-40.webp', desc:'', price:35 },
+  { id:41, lot:'41', name:'Скарборо', color:'#C97B3D', img:'images/photo-41.webp', desc:'', price:35 },
+  { id:42, lot:'42', name:'Сноуборд', color:'#5C6E8C', img:'images/photo-42.webp', desc:'', price:35 },
+  { id:43, lot:'43', name:'СтронгГолд', color:'#A83232', img:'images/photo-43.webp', desc:'', price:35 },
+  { id:44, lot:'44', name:'СтронгЛав', color:'#D98BAE', img:'images/photo-44.webp', desc:'', price:35 },
+  { id:45, lot:'45', name:'Суррендер', color:'#6B8E5A', img:'images/photo-45.webp', desc:'', price:35 },
+  { id:46, lot:'46', name:'ТемплофБьюти', color:'#B8860B', img:'images/photo-46.webp', desc:'', price:35 },
+  { id:47, lot:'47', name:'ТриплА', color:'#8E4A6B', img:'images/photo-47.webp', desc:'', price:35 },
+  { id:48, lot:'48', name:'Фабио', color:'#D95F5F', img:'images/photo-48.webp', desc:'', price:35 },
+  { id:49, lot:'49', name:'ФестЛайф', color:'#3B1F2B', img:'images/photo-49.webp', desc:'', price:35 },
+  { id:50, lot:'50', name:'ФлемингФлаг', color:'#C31432', img:'images/photo-50.webp', desc:'', price:35 },
+  { id:51, lot:'51', name:'ФорготтенДримс', color:'#E8899E', img:'images/photo-51.webp', desc:'', price:40 },
+  { id:52, lot:'52', name:'Фортресс', color:'#E3B23C', img:'images/photo-52.webp', desc:'', price:35 },
+  { id:53, lot:'53', name:'Хавран', color:'#F5F3EA', img:'images/photo-53.webp', desc:'', price:35 },
+  { id:54, lot:'54', name:'ХВДМ', color:'#7A4FA0', img:'images/photo-54.webp', desc:'', price:35 },
+  { id:55, lot:'55', name:'Холланд Бьюти', color:'#E8A16B', img:'images/photo-55.webp', desc:'', price:35 },
+  { id:56, lot:'56', name:'ЯнВанБус', color:'#E0672E', img:'images/photo-56.webp', desc:'', price:35 },
+];
+const UNIT = 'Детка - 1 стакан 400 руб.';
+const DETKA_PRICE = 400;
+const cart = {}; // ключ вида "f:<id>" (цветок) или "d:<id>" (детка) -> qty
+
+/* ---------- SVG-иллюстрация тюльпана ---------- */
+function tulipSVG(color, stroke, id){
+  const s = stroke || 'none';
+  const sw = stroke ? 1.5 : 0;
+  return `
+  <svg width="90" height="120" viewBox="0 0 90 120" fill="none">
+    <path d="M45 118 L45 55" stroke="#45613B" stroke-width="3" stroke-linecap="round"/>
+    <path d="M45 95 C 25 92, 14 78, 18 60 C 32 66, 42 78, 45 95 Z" fill="#4E6B43"/>
+    <path d="M45 100 C 65 97, 76 84, 73 66 C 58 72, 48 84, 45 100 Z" fill="#3D5636"/>
+    <path d="M45 12 C 30 12, 22 30, 22 45 C 22 63, 32 75, 45 75
+             C 58 75, 68 63, 68 45 C 68 30, 60 12, 45 12 Z"
+          fill="${color}" stroke="${s}" stroke-width="${sw}"/>
+    <path d="M45 16 C 40 24, 38 34, 39 44" stroke="rgba(0,0,0,0.12)" stroke-width="2" fill="none"/>
+  </svg>`;
+}
+
+/* ---------- рендер каталога (партиями, чтобы не тормозило на телефоне) ---------- */
+const grid = document.getElementById('productGrid');
+
+function buildCard(p){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.productId = p.id;
+  card.innerHTML = `
+    <span class="lot">Лот ${p.lot}</span>
+    <div class="art">${p.img ? `<img data-src="${p.img}" alt="${p.name}" width="260" height="260" decoding="async">` : tulipSVG(p.color, p.stroke, p.id)}</div>
+    <div class="ticket-edge"></div>
+    <div class="info">
+      <h3>${p.name}</h3>
+      ${p.desc ? `<div class="desc">${p.desc}</div>` : ''}
+      <div class="price-row">
+        <span class="price">${p.price} ₽</span>
+        <div class="controls" data-key="f:${p.id}"></div>
+      </div>
+      <div class="detka-row">
+        <span class="detka-label">Детка · 1 стакан — ${DETKA_PRICE} ₽</span>
+        <div class="controls" data-key="d:${p.id}"></div>
+      </div>
+    </div>`;
+  return card;
+}
+
+function renderProductsInBatches(list, batchSize, onBatch){
+  let i = 0;
+  function next(){
+    const frag = document.createDocumentFragment();
+    const end = Math.min(i + batchSize, list.length);
+    for (; i < end; i++){
+      frag.appendChild(buildCard(list[i]));
+    }
+    grid.appendChild(frag);
+    if (onBatch) onBatch();
+    if (i < list.length){
+      (window.requestIdleCallback || window.requestAnimationFrame)(next);
+    }
+  }
+  next();
+}
+
+/* ---------- по-настоящему ленивая, ограниченная по числу одновременных загрузок ---------- */
+const MAX_CONCURRENT_IMAGE_LOADS = 4;
+let activeImageLoads = 0;
+const imageQueue = [];
+
+function loadNextImage(){
+  if (activeImageLoads >= MAX_CONCURRENT_IMAGE_LOADS || imageQueue.length === 0) return;
+  const img = imageQueue.shift();
+  const src = img.dataset.src;
+  if (!src){ loadNextImage(); return; }
+  activeImageLoads++;
+  const finish = ()=>{ activeImageLoads--; loadNextImage(); };
+  img.addEventListener('load', finish, { once:true });
+  img.addEventListener('error', finish, { once:true });
+  img.src = src;
+}
+
+function enqueueImage(img){
+  imageQueue.push(img);
+  loadNextImage();
+}
+
+const imgObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries, obs)=>{
+  entries.forEach(entry=>{
+    if (entry.isIntersecting){
+      enqueueImage(entry.target);
+      obs.unobserve(entry.target);
+    }
+  });
+}, { rootMargin: '400px 0px' }) : null;
+
+let firstBatchDone = false;
+function observeNewImages(){
+  document.querySelectorAll('img[data-src]:not([data-lazy-init])').forEach(img=>{
+    img.dataset.lazyInit = '1';
+    if (!firstBatchDone){
+      enqueueImage(img); // первая партия видна сразу — грузим без ожидания скролла
+    } else if (imgObserver){
+      imgObserver.observe(img);
+    } else {
+      enqueueImage(img); // браузер без поддержки IntersectionObserver — грузим по очереди сразу
+    }
+  });
+  firstBatchDone = true;
+}
+
+renderProductsInBatches(products, 8, ()=>{
+  renderCardControls();
+  renderBadge();
+  observeNewImages();
+});
+
+/* ---------- поле тюльпанов в хиро ---------- */
+const heroField = document.getElementById('heroField');
+const heroColors = products.map(p=>p.color);
+heroColors.forEach((c,i)=>{
+  const wrap = document.createElement('div');
+  const scale = 0.7 + (i % 3)*0.15;
+  wrap.style.transform = `scale(${scale})`;
+  wrap.style.transformOrigin = 'bottom';
+  wrap.innerHTML = tulipSVG(c, products[i].stroke);
+  heroField.appendChild(wrap);
+});
+
+/* ======================================================
+   КОРЗИНА
+====================================================== */
+
+function getProduct(id){ return products.find(p=>p.id===id); }
+
+function lineInfo(key){
+  const [type, idStr] = key.split(':');
+  const id = Number(idStr);
+  const p = getProduct(id);
+  if (type === 'd'){
+    return { name: p.name + ' — детка', price: DETKA_PRICE, unitLabel: '1 стакан', color: p.color, stroke: p.stroke, lot: p.lot };
+  }
+  return { name: p.name, price: p.price, unitLabel: '', color: p.color, stroke: p.stroke, lot: p.lot };
+}
+
+function addToCart(key){
+  cart[key] = (cart[key]||0) + 1;
+  renderAll();
+}
+function setQty(key, qty){
+  if(qty<=0){ delete cart[key]; } else { cart[key]=qty; }
+  renderAll();
+}
+
+function cartCount(){
+  return Object.values(cart).reduce((a,b)=>a+b,0);
+}
+function cartTotal(){
+  return Object.entries(cart).reduce((sum,[key,qty])=> sum + lineInfo(key).price*qty, 0);
+}
+
+function renderCardControls(){
+  document.querySelectorAll('.controls').forEach(el=>{
+    const key = el.dataset.key;
+    const qty = cart[key]||0;
+    if(qty===0){
+      el.innerHTML = `<button class="add-btn" onclick="addToCart('${key}')">Добавить</button>`;
+    } else {
+      el.innerHTML = `
+        <div class="stepper">
+          <button onclick="setQty('${key}', ${qty-1})" aria-label="Меньше">−</button>
+          <span>${qty}</span>
+          <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше">+</button>
+        </div>`;
+    }
+  });
+}
+
+function renderBadge(){
+  const badge = document.getElementById('cartBadge');
+  const count = cartCount();
+  badge.textContent = count;
+  badge.classList.toggle('hidden', count===0);
+}
+
+function renderDrawer(){
+  const body = document.getElementById('drawerBody');
+  const foot = document.getElementById('drawerFoot');
+  const entries = Object.entries(cart);
+
+  if(entries.length===0){
+    body.innerHTML = `<div class="empty-cart">Корзина пуста.<br>Выберите сорт в каталоге.</div>`;
+    foot.innerHTML = '';
+    return;
+  }
+
+  body.innerHTML = entries.map(([key,qty])=>{
+    const info = lineInfo(key);
+    return `
+      <div class="line-item">
+        <div class="swatch">${tulipSVG(info.color, info.stroke)}</div>
+        <div class="li-info">
+          <div class="name">${info.name}</div>
+          ${info.unitLabel ? `<div class="unit">${info.unitLabel}</div>` : ''}
+          <div class="li-bottom">
+            <div class="stepper">
+              <button onclick="setQty('${key}', ${qty-1})" aria-label="Меньше">−</button>
+              <span>${qty}</span>
+              <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше">+</button>
+            </div>
+            <span class="li-total">${info.price*qty} ₽</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  foot.innerHTML = `
+    <div class="subtotal-row">
+      <span>Итого</span>
+      <span class="amount">${cartTotal()} ₽</span>
+    </div>
+    <div class="buyer-fields">
+      <input type="text" id="buyerName" class="buyer-input" placeholder="Ваше имя" autocomplete="name">
+      <input type="tel" id="buyerPhone" class="buyer-input" placeholder="Номер телефона" autocomplete="tel">
+      <input type="email" id="buyerEmail" class="buyer-input" placeholder="Email (необязательно)" autocomplete="email">
+      <div class="buyer-error" id="buyerError"></div>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn">Оформить заказ</button>`;
+
+  document.getElementById('checkoutBtn').onclick = checkout;
+  [document.getElementById('buyerName'), document.getElementById('buyerPhone')].forEach(el=>{
+    el.addEventListener('input', ()=>{
+      el.classList.remove('invalid');
+      document.getElementById('buyerError').textContent = '';
+    });
+  });
+}
+
+const SHOP_EMAIL = 'bbflowers.26kmv@gmail.com';
+
+const EMAILJS_PUBLIC_KEY = 'a3a2GNhlPxXZyvaF_';
+const EMAILJS_SERVICE_ID = 'service_68i3lue';
+const EMAILJS_TEMPLATE_ID = 'template_scmre8j';
+if (window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+function checkout(){
+  const body = document.getElementById('drawerBody');
+  const foot = document.getElementById('drawerFoot');
+  const total = cartTotal();
+
+  const nameInput = document.getElementById('buyerName');
+  const phoneInput = document.getElementById('buyerPhone');
+  const emailInput = document.getElementById('buyerEmail');
+  const errorEl = document.getElementById('buyerError');
+  const buyerName = nameInput.value.trim();
+  const buyerPhone = phoneInput.value.trim();
+  const buyerEmail = emailInput.value.trim();
+
+  if (!buyerName || !buyerPhone){
+    errorEl.textContent = 'Укажите имя и номер телефона, чтобы оформить заказ.';
+    if (!buyerName) nameInput.classList.add('invalid');
+    if (!buyerPhone) phoneInput.classList.add('invalid');
+    return;
+  }
+
+  // собираем текст заказа
+  const lines = Object.entries(cart).map(([key, qty])=>{
+    const info = lineInfo(key);
+    return `${info.name} (лот ${info.lot}) — ${qty} x ${info.price} ₽ = ${info.price*qty} ₽`;
+  });
+  const subject = `Новый заказ TULIPA — ${total} ₽`;
+  const orderItems = lines.join('\n');
+
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  checkoutBtn.disabled = true;
+  checkoutBtn.textContent = 'Отправляем…';
+
+  if (!window.emailjs){
+    errorEl.textContent = 'Не удалось загрузить сервис отправки. Проверьте интернет и попробуйте ещё раз.';
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'Оформить заказ';
+    return;
+  }
+
+  const templateParams = {
+    subject: subject,
+    to_email: SHOP_EMAIL,
+    buyer_name: buyerName,
+    buyer_phone: buyerPhone,
+    buyer_email: buyerEmail || '—',
+    order_items: orderItems,
+    order_total: total
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+    .then(()=>{
+      body.innerHTML = `
+        <div class="confirm">
+          <h3>Заказ отправлен</h3>
+          <p>Письмо ушло на почту магазина автоматически. Сумма заказа — ${total} ₽. Мы свяжемся с вами по указанному телефону.</p>
+          <button class="new-order" id="newOrderBtn">Собрать новый заказ</button>
+        </div>`;
+      foot.innerHTML = '';
+      Object.keys(cart).forEach(key=>delete cart[key]);
+      renderBadge();
+      renderCardControls();
+      document.getElementById('newOrderBtn').onclick = ()=>renderDrawer();
+    })
+    .catch(()=>{
+      errorEl.textContent = 'Не получилось отправить письмо. Попробуйте ещё раз или свяжитесь с нами по телефону.';
+      checkoutBtn.disabled = false;
+      checkoutBtn.textContent = 'Оформить заказ';
+    });
+}
+
+function renderAll(){
+  renderCardControls();
+  renderBadge();
+  renderDrawer();
+}
+
+/* ---------- открытие / закрытие корзины ---------- */
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+function openDrawer(){ drawer.classList.add('open'); overlay.classList.add('show'); }
+function closeDrawer(){ drawer.classList.remove('open'); overlay.classList.remove('show'); }
+
+document.getElementById('openCart').onclick = ()=>{ renderDrawer(); openDrawer(); };
+document.getElementById('closeCart').onclick = closeDrawer;
+overlay.onclick = closeDrawer;
+
+renderAll();
+
+/* ======================================================
+   ОСТАТКИ ИЗ GOOGLE ТАБЛИЦЫ
+   Вставьте сюда ссылку на опубликованный CSV (Файл →
+   Опубликовать в интернете → формат CSV). Пока ссылка
+   пустая — проверка остатков просто не выполняется, и
+   все карточки видны как обычно.
+====================================================== */
+const STOCK_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRBinIn33dg8v8u_0BjYQc09iZy5lPzL14jilf_bJcQya8kdPal5DLCeg9FFxiIEjAMpj7QKWqYK1v_/pub?output=csv';
+
+function parseStockCSV(text){
+  const stock = {};
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  for (let i = 1; i < lines.length; i++){ // строка 0 — заголовки
+    const cells = lines[i].split(',');
+    if (cells.length < 2) continue;
+    const name = cells[0].trim().replace(/^"|"$/g, '');
+    const qty = parseInt(cells[1].trim().replace(/^"|"$/g, ''), 10);
+    if (name) stock[name] = isNaN(qty) ? null : qty;
+  }
+  return stock;
+}
+
+function applyStock(stockByName){
+  products.forEach(p=>{
+    const qty = stockByName[p.name];
+    if (qty === 0){
+      const card = document.querySelector(`.card[data-product-id="${p.id}"]`);
+      if (card) card.style.display = 'none';
+    }
+  });
+}
+
+function loadStock(){
+  if (!STOCK_SHEET_CSV_URL) return; // ссылка ещё не подключена
+  fetch(STOCK_SHEET_CSV_URL)
+    .then(r => r.text())
+    .then(text => applyStock(parseStockCSV(text)))
+    .catch(() => { /* таблица недоступна — карточки остаются как есть */ });
+}
+
+loadStock();
+</script>
+
+</body>
+</html>
