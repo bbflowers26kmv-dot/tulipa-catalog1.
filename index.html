@@ -245,6 +245,16 @@
     cursor:pointer;
   }
   .add-btn:hover{background:var(--soft-dark);}
+  .out-of-stock{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .stepper button:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+  .stepper button:disabled:hover{background:none; color:var(--ink);}
   .stepper{
     display:flex; align-items:center; gap:0;
     border:1px solid var(--ink);
@@ -596,6 +606,8 @@ const products = [
 const UNIT = 'Детка - 1 стакан 400 руб.';
 const DETKA_PRICE = 400;
 const cart = {}; // ключ вида "f:<id>" (цветок) или "d:<id>" (детка) -> qty
+const STOCK_API_URL = 'https://script.google.com/macros/s/AKfycbzl6SIY5rZI1k_DDWGrScy1mRPTNHV5z4Pd9dqJNOq367K9ivmXVU6WakxzofkNFaMh/exec';
+let stockByName = {}; // 'Авокадо' -> остаток (число) или undefined, если сорт не найден в таблице
 
 /* ---------- SVG-иллюстрация тюльпана ---------- */
 function tulipSVG(color, stroke, id){
@@ -737,10 +749,21 @@ function lineInfo(key){
 }
 
 function addToCart(key){
+  if (key.startsWith('f:')){
+    const id = Number(key.split(':')[1]);
+    const p = getProduct(id);
+    if (stockRemaining(p) <= 0) return; // остаток исчерпан
+  }
   cart[key] = (cart[key]||0) + 1;
   renderAll();
 }
 function setQty(key, qty){
+  if (qty > 0 && key.startsWith('f:')){
+    const id = Number(key.split(':')[1]);
+    const p = getProduct(id);
+    const stock = stockByName[p.name];
+    if (stock !== undefined && qty > stock) qty = stock; // не превышаем остаток
+  }
   if(qty<=0){ delete cart[key]; } else { cart[key]=qty; }
   renderAll();
 }
@@ -756,14 +779,22 @@ function renderCardControls(){
   document.querySelectorAll('.controls').forEach(el=>{
     const key = el.dataset.key;
     const qty = cart[key]||0;
+    let remaining = Infinity;
+    if (key.startsWith('f:')){
+      const id = Number(key.split(':')[1]);
+      const p = getProduct(id);
+      remaining = stockRemaining(p);
+    }
     if(qty===0){
-      el.innerHTML = `<button class="add-btn" onclick="addToCart('${key}')">Добавить</button>`;
+      el.innerHTML = (remaining <= 0)
+        ? `<span class="out-of-stock">Нет в наличии</span>`
+        : `<button class="add-btn" onclick="addToCart('${key}')">Добавить</button>`;
     } else {
       el.innerHTML = `
         <div class="stepper">
           <button onclick="setQty('${key}', ${qty-1})" aria-label="Меньше">−</button>
           <span>${qty}</span>
-          <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше">+</button>
+          <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше" ${remaining<=0 ? 'disabled' : ''}>+</button>
         </div>`;
     }
   });
@@ -789,6 +820,11 @@ function renderDrawer(){
 
   body.innerHTML = entries.map(([key,qty])=>{
     const info = lineInfo(key);
+    let remaining = Infinity;
+    if (key.startsWith('f:')){
+      const id = Number(key.split(':')[1]);
+      remaining = stockRemaining(getProduct(id));
+    }
     return `
       <div class="line-item">
         <div class="swatch">${tulipSVG(info.color, info.stroke)}</div>
@@ -799,7 +835,7 @@ function renderDrawer(){
             <div class="stepper">
               <button onclick="setQty('${key}', ${qty-1})" aria-label="Меньше">−</button>
               <span>${qty}</span>
-              <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше">+</button>
+              <button onclick="setQty('${key}', ${qty+1})" aria-label="Больше" ${remaining<=0 ? 'disabled' : ''}>+</button>
             </div>
             <span class="li-total">${info.price*qty} ₽</span>
           </div>
@@ -887,6 +923,7 @@ function checkout(){
 
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
     .then(()=>{
+      deductStock(cart); // списываем остаток за купленные цветы
       body.innerHTML = `
         <div class="confirm">
           <h3>Заказ отправлен</h3>
@@ -925,28 +962,16 @@ overlay.onclick = closeDrawer;
 renderAll();
 
 /* ======================================================
-   ОСТАТКИ ИЗ GOOGLE ТАБЛИЦЫ
-   Вставьте сюда ссылку на опубликованный CSV (Файл →
-   Опубликовать в интернете → формат CSV). Пока ссылка
-   пустая — проверка остатков просто не выполняется, и
-   все карточки видны как обычно.
+   ОСТАТКИ ЧЕРЕЗ GOOGLE APPS SCRIPT
+   Ссылка веб-приложения задана выше (STOCK_API_URL), рядом
+   с объявлением cart — чтобы избежать использования до
+   объявления при самой первой отрисовке карточек.
 ====================================================== */
-const STOCK_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRBinIn33dg8v8u_0BjYQc09iZy5lPzL14jilf_bJcQya8kdPal5DLCeg9FFxiIEjAMpj7QKWqYK1v_/pub?output=csv';
 
-function parseStockCSV(text){
-  const stock = {};
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-  for (let i = 1; i < lines.length; i++){ // строка 0 — заголовки
-    const cells = lines[i].split(',');
-    if (cells.length < 2) continue;
-    const name = cells[0].trim().replace(/^"|"$/g, '');
-    const qty = parseInt(cells[1].trim().replace(/^"|"$/g, ''), 10);
-    if (name) stock[name] = isNaN(qty) ? null : qty;
-  }
-  return stock;
-}
+function applyStock(list){
+  stockByName = {};
+  list.forEach(row=>{ stockByName[row.name] = row.qty; });
 
-function applyStock(stockByName){
   products.forEach(p=>{
     const qty = stockByName[p.name];
     if (qty === 0){
@@ -957,15 +982,55 @@ function applyStock(stockByName){
 }
 
 function loadStock(){
-  if (!STOCK_SHEET_CSV_URL) return; // ссылка ещё не подключена
-  fetch(STOCK_SHEET_CSV_URL)
-    .then(r => r.text())
-    .then(text => applyStock(parseStockCSV(text)))
+  if (!STOCK_API_URL) return; // ссылка ещё не подключена
+  fetch(STOCK_API_URL)
+    .then(r => r.json())
+    .then(applyStock)
     .catch(() => { /* таблица недоступна — карточки остаются как есть */ });
+}
+
+// сколько сорта p ещё можно добавить с учётом остатка и уже лежащего в корзине
+function stockRemaining(p){
+  const stock = stockByName[p.name];
+  if (stock === undefined) return Infinity; // сорт не отслеживается в таблице — без ограничений
+  const inCart = cart['f:' + p.id] || 0;
+  return Math.max(0, stock - inCart);
+}
+
+// после успешной отправки заказа — списываем купленные цветы (детку не трогаем)
+function deductStock(cartSnapshot){
+  const items = Object.entries(cartSnapshot)
+    .filter(([key]) => key.startsWith('f:'))
+    .map(([key, qty]) => {
+      const id = Number(key.split(':')[1]);
+      const p = getProduct(id);
+      return { name: p.name, qty };
+    });
+  if (items.length === 0) return;
+
+  // сразу обновляем локально, чтобы карточки отражали новый остаток без перезагрузки
+  items.forEach(item=>{
+    if (stockByName[item.name] !== undefined){
+      stockByName[item.name] = Math.max(0, stockByName[item.name] - item.qty);
+    }
+  });
+  products.forEach(p=>{
+    if (stockByName[p.name] === 0){
+      const card = document.querySelector(`.card[data-product-id="${p.id}"]`);
+      if (card) card.style.display = 'none';
+    }
+  });
+
+  if (!STOCK_API_URL) return;
+  fetch(STOCK_API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ items })
+  }).catch(()=>{ /* если не получилось списать — не мешаем клиенту, заказ уже ушёл */ });
 }
 
 loadStock();
 </script>
+
 
 </body>
 </html>
