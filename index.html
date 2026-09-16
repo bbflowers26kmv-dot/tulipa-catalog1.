@@ -453,6 +453,15 @@
     footer{flex-direction:column; gap:26px;}
     .drawer{width:100vw;}
     .checkout-btn, .add-btn{padding:13px 14px;}
+
+    .drawer-head{padding:16px 4vw;}
+    .drawer-body{padding:12px 4vw;}
+    .drawer-foot{padding:14px 4vw calc(20px + env(safe-area-inset-bottom));}
+    .line-item{gap:10px; padding:12px 0;}
+    .line-item .swatch{width:40px; height:40px;}
+    .buyer-input{font-size:16px; padding:12px;} /* 16px — чтобы iOS не зумил при фокусе */
+    .subtotal-row{font-size:0.95rem;}
+    .checkout-btn{font-size:1rem; padding:15px;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -528,7 +537,7 @@
 // Если "img" не задан — останется векторный рисунок.
 const products = [
   { id:1, lot:'01', name:'Авокадо', color:'#3B1F2B', img:'images/photo-1.webp', desc:'', price:35 },
-  { id:2, lot:'02', name:'Акебено', color:'#C31432', img:'images/photo-2.webp', desc:'', price:35 },
+  { id:2, lot:'02', name:'Акебоно', color:'#C31432', img:'images/photo-2.webp', desc:'', price:35 },
   { id:3, lot:'03', name:'Алиби', color:'#E8899E', img:'images/photo-3.webp', desc:'', price:35 },
   { id:4, lot:'04', name:'Апдейт', color:'#E3B23C', img:'images/photo-4.webp', desc:'', price:35 },
   { id:5, lot:'05', name:'Апельдорн Элите', color:'#F5F3EA', img:'images/photo-5.webp', desc:'', price:32 },
@@ -551,12 +560,12 @@ const products = [
   { id:22, lot:'22', name:'Лорна', color:'#B8860B', img:'images/photo-22.webp', desc:'', price:35 },
   { id:23, lot:'23', name:'Лэптоп', color:'#8E4A6B', img:'images/photo-23.webp', desc:'', price:35 },
   { id:24, lot:'24', name:'Люба', color:'#D95F5F', img:'images/photo-24.webp', desc:'', price:35 },
-  { id:25, lot:'25', name:'Маракс Прайд', color:'#3B1F2B', img:'images/photo-25.webp', desc:'', price:35 },
+  { id:25, lot:'25', name:'Маракс Прайд', color:'#3B1F2B', img:'images/photo-25.webp', desc:'', price:40 },
   { id:26, lot:'26', name:'Матч', color:'#C31432', img:'images/photo-26.webp', desc:'', price:35 },
   { id:27, lot:'27', name:'Мистериус Паррот', color:'#E8899E', img:'images/photo-27.webp', desc:'', price:40 },
   { id:28, lot:'28', name:'Непер', color:'#E3B23C', img:'images/photo-28.webp', desc:'', price:35 },
-  { id:29, lot:'29', name:'Ниненрод', color:'#F5F3EA', img:'images/photo-29.webp', desc:'', price:40 },
-  { id:30, lot:'30', name:'Парад', color:'#7A4FA0', img:'images/photo-30.webp', desc:'', price:32 },
+  { id:29, lot:'29', name:'Ниенрод', color:'#F5F3EA', img:'images/photo-29.webp', desc:'', price:40 },
+  { id:30, lot:'30', name:'Парад', color:'#7A4FA0', img:'images/photo-30.webp', desc:'', price:30 },
   { id:31, lot:'31', name:'Парадеро', color:'#E8A16B', img:'images/photo-31.webp', desc:'', price:35 },
   { id:32, lot:'32', name:'ПёрплЛорд', color:'#E0672E', img:'images/photo-32.webp', desc:'', price:35 },
   { id:33, lot:'33', name:'ПерплСкай', color:'#E8D46A', img:'images/photo-33.webp', desc:'', price:40 },
